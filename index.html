@@ -92,4 +92,51 @@ async function loadStandings() {
 }
 
 async function loadFixtures() {
-  const matches = await api('matches?select=*,home:home_team_id(name),away:away_team_id(name)&order
+  const matches = await api('matches?select=*,home:home_team_id(name),away:away_team_id(name)&order=match_time');
+  let html = '';
+  let lastDate = '';
+  matches.forEach(m => {
+    const dt = m.match_time ? new Date(m.match_time) : null;
+    const dateStr = dt ? dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) : 'Date TBC';
+    if (dateStr !== lastDate) { html += `<div class="section-date">${dateStr}</div>`; lastDate = dateStr; }
+    const timeStr = dt ? dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : 'TBC';
+    const badge = m.status==='live' ? '<span class="badge badge-live">Live</span>' : m.status==='completed' ? '<span class="badge badge-done">Full time</span>' : '<span class="badge badge-soon">Upcoming</span>';
+    const scoreOrTime = m.status==='upcoming' ? `<span class="match-time">${timeStr}</span>` : `<span class="match-score">${m.home_score} – ${m.away_score}</span>`;
+    html += `<div class="fixture-card"><div class="match-teams"><span class="match-team">${m.home?.name||'TBC'}</span>${scoreOrTime}<span class="match-team right">${m.away?.name||'TBC'}</span></div>${badge}</div>`;
+  });
+  document.getElementById('fixtures').innerHTML = html || '<div class="loading">No fixtures yet</div>';
+}
+
+function showTab(id, el) {
+  document.getElementById('standings').style.display = id==='standings'?'block':'none';
+  document.getElementById('fixtures').style.display = id==='fixtures'?'block':'none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+loadStandings();
+loadFixtures();
+setInterval(()=>{ loadStandings(); loadFixtures(); }, 30000);
+</script>
+</body>
+</html>
+\n\n\n\n\n\n\n\n
+\n
+\n
+Shaheedi Bunga UK \u2026 Dodgeball
+\n
+Tournament Scoreboard
+
+\n
+\n \u262c\n
+\n
+\n
+Standings\n Fixtures & Results\n\n
+\n
+Loading standings...
+\n
+Loading fixtures...
+\n
+Admin login
+\n
+\n

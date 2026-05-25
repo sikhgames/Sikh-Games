@@ -1,0 +1,95 @@
+ index.html — paste this into GitHub
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaheedi Bunga Dodgeball</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f4f4f8; color: #1a1a1a; }
+header { background: #1a1a4e; color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 18px; font-weight: 600; }
+header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.khanda { font-size: 28px; }
+.tabs { display: flex; background: white; border-bottom: 2px solid #e5e5e5; }
+.tab { padding: 12px 24px; font-size: 14px; cursor: pointer; border: none; background: none; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab.active { color: #1a1a4e; border-bottom-color: #c8960c; font-weight: 600; }
+.container { max-width: 700px; margin: 20px auto; padding: 0 16px; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+th { background: #1a1a4e; color: white; padding: 10px 12px; text-align: center; font-size: 12px; letter-spacing: 0.5px; }
+th.left { text-align: left; }
+td { padding: 12px; text-align: center; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+td.left { text-align: left; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.team-name { font-weight: 600; }
+.team-type { font-size: 11px; color: #888; }
+.pts { font-weight: 700; color: #1a1a4e; font-size: 16px; }
+.w { color: #15803d; font-weight: 600; }
+.l { color: #dc2626; }
+.fixture-card { background: white; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; }
+.match-teams { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+.match-team { font-size: 14px; font-weight: 600; flex: 1; }
+.match-team.right { text-align: right; }
+.match-score { font-size: 18px; font-weight: 700; color: #1a1a4e; min-width: 70px; text-align: center; }
+.match-time { font-size: 13px; color: #666; min-width: 70px; text-align: center; }
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.badge-live { background: #fee2e2; color: #dc2626; }
+.badge-done { background: #f0f0f0; color: #666; }
+.badge-soon { background: #dbeafe; color: #1d4ed8; }
+.section-date { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 8px; }
+.loading { text-align: center; padding: 40px; color: #888; }
+.admin-link { text-align: center; margin-top: 24px; padding-bottom: 24px; }
+.admin-link a { font-size: 13px; color: #888; text-decoration: none; }
+.admin-link a:hover { color: #1a1a4e; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Shaheedi Bunga UK — Dodgeball</h1>
+    <p>Tournament Scoreboard</p>
+  </div>
+  <span class="khanda">☬</span>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('standings',this)">Standings</button>
+  <button class="tab" onclick="showTab('fixtures',this)">Fixtures & Results</button>
+</div>
+<div class="container">
+  <div id="standings"><div class="loading">Loading standings...</div></div>
+  <div id="fixtures" style="display:none"><div class="loading">Loading fixtures...</div></div>
+  <div class="admin-link"><a href="admin.html">Admin login</a></div>
+</div>
+<script>
+const SUPABASE_URL = 'https://pxveryjqpxczzfnhnyci.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4dmVyeWpxcHhjenpmbmhueWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTg2MTEsImV4cCI6MjA5NTI3NDYxMX0.6iPO_cmgeFTeiI9aPYljv2yqt63PYNFEw67cs7NffEU';
+
+async function api(path) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
+  });
+  return r.json();
+}
+
+async function loadStandings() {
+  const teams = await api('teams?select=*&order=name');
+  const matches = await api('matches?select=*&status=eq.completed');
+  const stats = {};
+  teams.forEach(t => stats[t.id] = { name: t.name, type: t.school_type, p:0,w:0,d:0,l:0,pts:0 });
+  matches.forEach(m => {
+    if (!stats[m.home_team_id] || !stats[m.away_team_id]) return;
+    stats[m.home_team_id].p++; stats[m.away_team_id].p++;
+    if (m.home_score > m.away_score) { stats[m.home_team_id].w++; stats[m.home_team_id].pts+=3; stats[m.away_team_id].l++; }
+    else if (m.home_score < m.away_score) { stats[m.away_team_id].w++; stats[m.away_team_id].pts+=3; stats[m.home_team_id].l++; }
+    else { stats[m.home_team_id].d++; stats[m.home_team_id].pts+=1; stats[m.away_team_id].d++; stats[m.away_team_id].pts+=1; }
+  });
+  const sorted = Object.values(stats).sort((a,b) => b.pts - a.pts || b.w - a.w);
+  document.getElementById('standings').innerHTML = '<table><thead><tr><th class="left" colspan="2">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead><tbody>' +
+    sorted.map((t,i) => `<tr><td class="left" style="color:#888;font-size:12px;width:28px">${i+1}</td><td class="left"><div class="team-name">${t.name}</div><div class="team-type">${t.type||''}</div></td><td>${t.p}</td><td class="w">${t.w}</td><td>${t.d}</td><td class="l">${t.l}</td><td class="pts">${t.pts}</td></tr>`).join('') +
+    '</tbody></table>';
+}
+
+async function loadFixtures() {
+  const matches = await api('matches?select=*,home:home_team_id(name),away:away_team_id(name)&order

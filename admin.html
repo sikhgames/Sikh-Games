@@ -1,0 +1,283 @@
+ admin.html — paste this into GitHub
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Shaheedi Bunga Dodgeball</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f4f4f8; color: #1a1a1a; }
+header { background: #1a1a4e; color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 18px; font-weight: 600; }
+header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.khanda { font-size: 28px; }
+.container { max-width: 600px; margin: 30px auto; padding: 0 16px; }
+.card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; }
+.card h2 { font-size: 16px; font-weight: 600; color: #1a1a4e; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 12px; }
+input, select { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; color: #1a1a1a; background: white; }
+input:focus, select:focus { outline: none; border-color: #1a1a4e; }
+.btn { display: inline-block; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; margin-top: 16px; }
+.btn-primary { background: #1a1a4e; color: white; width: 100%; }
+.btn-primary:hover { background: #2a2a6e; }
+.btn-danger { background: #dc2626; color: white; font-size: 13px; padding: 6px 14px; margin-top: 0; }
+.btn-success { background: #15803d; color: white; font-size: 13px; padding: 6px 14px; margin-top: 0; }
+.btn-sm { font-size: 12px; padding: 5px 12px; margin-top: 0; border-radius: 5px; cursor: pointer; border: none; font-weight: 600; }
+.msg { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-top: 12px; }
+.msg-ok { background: #dcfce7; color: #15803d; }
+.msg-err { background: #fee2e2; color: #dc2626; }
+.match-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; }
+.match-row:last-child { border-bottom: none; }
+.match-label { flex: 1; font-size: 13px; font-weight: 600; min-width: 160px; }
+.score-input { width: 52px; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; font-size: 15px; font-weight: 700; }
+.vs { font-size: 12px; color: #888; }
+.status-select { font-size: 12px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 5px; }
+.logout-btn { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+.logout-btn:hover { background: rgba(255,255,255,0.1); }
+.hidden { display: none; }
+.section-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Shaheedi Bunga UK — Admin</h1>
+    <p id="admin-email">Score management</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="khanda">☬</span>
+    <button class="logout-btn hidden" id="logout-btn" onclick="logout()">Log out</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN PANEL -->
+  <div id="login-panel" class="card">
+    <h2>Admin Login</h2>
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="your@email.com">
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="Password">
+    <button class="btn btn-primary" onclick="login()">Log in</button>
+    <div id="login-msg"></div>
+  </div>
+
+  <!-- ADMIN PANELS (shown after login) -->
+  <div id="admin-panel" class="hidden">
+
+    <!-- UPDATE SCORES -->
+    <div class="card">
+      <h2>Update Match Scores</h2>
+      <div id="matches-list"><div style="color:#888;font-size:13px">Loading matches...</div></div>
+    </div>
+
+    <!-- ADD MATCH -->
+    <div class="card">
+      <h2>Add New Match</h2>
+      <div class="two-col">
+        <div>
+          <label>Home Team</label>
+          <select id="new-home"></select>
+        </div>
+        <div>
+          <label>Away Team</label>
+          <select id="new-away"></select>
+        </div>
+      </div>
+      <label>Match Date & Time</label>
+      <input type="datetime-local" id="new-time">
+      <button class="btn btn-primary" onclick="addMatch()">Add Match</button>
+      <div id="match-msg"></div>
+    </div>
+
+    <!-- ADD TEAM -->
+    <div class="card">
+      <h2>Add New Team</h2>
+      <label>Team Name</label>
+      <input type="text" id="new-team-name" placeholder="e.g. Khalsa Warriors">
+      <label>School Type</label>
+      <select id="new-team-type">
+        <option value="Primary">Primary</option>
+        <option value="Secondary">Secondary</option>
+      </select>
+      <button class="btn btn-primary" onclick="addTeam()">Add Team</button>
+      <div id="team-msg"></div>
+    </div>
+
+    <div style="text-align:center;padding-bottom:30px">
+      <a href="index.html" style="font-size:13px;color:#888;text-decoration:none">← Back to public scoreboard</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://pxveryjqpxczzfnhnyci.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4dmVyeWpxcHhjenpmbmhueWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTg2MTEsImV4cCI6MjA5NTI3NDYxMX0.6iPO_cmgeFTeiI9aPYljv2yqt63PYNFEw67cs7NffEU';
+let TOKEN = '';
+
+async function api(path, method='GET', body=null, token=null) {
+  const headers = { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (token||SUPABASE_ANON) };
+  if (method !== 'GET') headers['Prefer'] = 'return=representation';
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, { method, headers, body: body ? JSON.stringify(body) : null });
+  if (r.status === 204) return {};
+  return r.json();
+}
+
+async function authApi(endpoint, body) {
+  const r = await fetch(SUPABASE_URL + '/auth/v1/' + endpoint, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const msg = document.getElementById('login-msg');
+  msg.innerHTML = '<div class="msg">Logging in...</div>';
+  const data = await authApi('token?grant_type=password', { email, password: pass });
+  if (data.access_token) {
+    TOKEN = data.access_token;
+    document.getElementById('login-panel').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    document.getElementById('logout-btn').classList.remove('hidden');
+    document.getElementById('admin-email').textContent = email;
+    loadMatches();
+    loadTeamsForDropdowns();
+  } else {
+    msg.innerHTML = '<div class="msg msg-err">Login failed. Check your email and password.</div>';
+  }
+}
+
+function logout() {
+  TOKEN = '';
+  document.getElementById('login-panel').classList.remove('hidden');
+  document.getElementById('admin-panel').classList.add('hidden');
+  document.getElementById('logout-btn').classList.add('hidden');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('admin-email').textContent = 'Score management';
+}
+
+async function loadMatches() {
+  const matches = await api('matches?select=*,home:home_team_id(name),away:away_team_id(name)&order=match_time', 'GET', null, TOKEN);
+  const el = document.getElementById('matches-list');
+  if (!matches.length) { el.innerHTML = '<div style="color:#888;font-size:13px">No matches yet. Add one below.</div>'; return; }
+  el.innerHTML = matches.map(m => `
+    <div class="match-row" id="row-${m.id}">
+      <div class="match-label">${m.home?.name||'?'} vs ${m.away?.name||'?'}</div>
+      <input class="score-input" type="number" min="0" value="${m.home_score}" id="hs-${m.id}">
+      <span class="vs">–</span>
+      <input class="score-input" type="number" min="0" value="${m.away_score}" id="as-${m.id}">
+      <select class="status-select" id="st-${m.id}">
+        <option value="upcoming" ${m.status==='upcoming'?'selected':''}>Upcoming</option>
+        <option value="live" ${m.status==='live'?'selected':''}>Live</option>
+        <option value="completed" ${m.status==='completed'?'selected':''}>Full time</option>
+      </select>
+      <button class="btn btn-success btn-sm" onclick="saveMatch('${m.id}')">Save</button>
+    </div>`).join('');
+}
+
+async function saveMatch(id) {
+  const hs = parseInt(document.getElementById('hs-'+id).value)||0;
+  const as = parseInt(document.getElementById('as-'+id).value)||0;
+  const st = document.getElementById('st-'+id).value;
+  const r = await api('matches?id=eq.'+id, 'PATCH', { home_score: hs, away_score: as, status: st }, TOKEN);
+  const btn = document.querySelector(`#row-${id} .btn-success`);
+  btn.textContent = '✓ Saved'; btn.style.background='#0f6e56';
+  setTimeout(()=>{ btn.textContent='Save'; btn.style.background=''; }, 2000);
+}
+
+async function loadTeamsForDropdowns() {
+  const teams = await api('teams?select=*&order=name', 'GET', null, TOKEN);
+  ['new-home','new-away'].forEach(id => {
+    document.getElementById(id).innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  });
+}
+
+async function addMatch() {
+  const home = document.getElementById('new-home').value;
+  const away = document.getElementById('new-away').value;
+  const time = document.getElementById('new-time').value;
+  const msg = document.getElementById('match-msg');
+  if (home === away) { msg.innerHTML = '<div class="msg msg-err">Home and away teams must be different.</div>'; return; }
+  await api('matches', 'POST', { home_team_id: home, away_team_id: away, match_time: time||null, status:'upcoming', home_score:0, away_score:0 }, TOKEN);
+  msg.innerHTML = '<div class="msg msg-ok">Match added!</div>';
+  loadMatches();
+  setTimeout(()=>msg.innerHTML='', 3000);
+}
+
+async function addTeam() {
+  const name = document.getElementById('new-team-name').value.trim();
+  const type = document.getElementById('new-team-type').value;
+  const msg = document.getElementById('team-msg');
+  if (!name) { msg.innerHTML = '<div class="msg msg-err">Please enter a team name.</div>'; return; }
+  await api('teams', 'POST', { name, school_type: type }, TOKEN);
+  msg.innerHTML = '<div class="msg msg-ok">Team added!</div>';
+  document.getElementById('new-team-name').value = '';
+  loadTeamsForDropdowns();
+  setTimeout(()=>msg.innerHTML='', 3000);
+}
+</script>
+</body>
+</html>
+\n\n\n\n\n\n\n\n
+\n
+\n
+Shaheedi Bunga UK \u2026 Admin
+\n
+Score management
+
+\n
+\n
+\n \u262c\n
+Log out\n \n\n\n
+\n
+\n
+Admin Login
+\n Email\n 
+\"your@email.com\"
+\n Password\n 
+\"Password\"
+\n Log in\n
+\n
+\n\n
+\n
+\n
+Update Match Scores
+\n
+Loading matches...
+\n
+\n\n
+\n
+Add New Match
+\n
+\n
+\n Home Team\n 
+\n
+\n
+\n Away Team\n 
+\n
+\n
+\n Match Date & Time\n 
+\n Add Match\n
+\n
+\n\n
+\n
+Add New Team
+\n Team Name\n 
+\"e.g.
+\n School Type\n 
+Primary
+\n Add Team\n
+\n
+\n\n
+\n \u2190 Back to public scoreboard\n
+\n
+\n
+\n\n

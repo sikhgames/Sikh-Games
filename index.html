@@ -155,9 +155,9 @@ function renderStandings(teams, matches) {
   const primary = teams.filter(t => t.school_type === 'Primary');
   const secondary = teams.filter(t => t.school_type === 'Secondary');
   const html =
-    '<div class="section-heading">Primary Schools</div>' +
+    '<div class="section-heading">Primary School</div>' +
     tableHTML(buildStatsTable(primary, matches)) +
-    '<div class="section-heading">Secondary Schools</div>' +
+    '<div class="section-heading">Secondary School</div>' +
     tableHTML(buildStatsTable(secondary, matches));
   document.getElementById('standings').innerHTML = html;
 }

@@ -144,7 +144,7 @@ function tableHTML(rows) {
     '</tr></thead><tbody>' +
     rows.map((t,i) => `<tr class="${i===0 && t.p>0 ? 'top-row' : ''}">
       <td class="rank">${i+1}</td>
-      <td class="left"><div class="team-name">${t.name}</div><div class="team-type">${t.type||''}</div></td>
+      <td class="left"><div class="team-name">${t.name}</div></td>
       <td>${t.p}</td><td class="w">${t.w}</td><td class="d">${t.d}</td><td class="l">${t.l}</td>
       <td>${t.gf}</td><td>${t.ga}</td><td class="pts">${t.pts}</td>
     </tr>`).join('') +

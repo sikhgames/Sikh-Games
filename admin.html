@@ -261,6 +261,7 @@ async function loadMatches() {
       <div class="match-header">
         <div>
           <div class="match-title">${m.home?.name||'?'} vs ${m.away?.name||'?'}</div>
+          <div style="font-size:11px;color:#999;margin-top:2px">${m.home?.school_type||''} vs ${m.away?.school_type||''}</div>
           <div class="match-time-label">${dt}</div>
         </div>
         <button class="btn-delete" onclick="deleteMatch('${m.id}')">Delete</button>

@@ -207,7 +207,7 @@ async function loadTeams() {
       </tr>`).join('') +
     '</tbody></table>';
   ['new-home','new-away'].forEach(id => {
-    document.getElementById(id).innerHTML = teamsCache.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById(id).innerHTML = teamsCache.map(t => `<option value="${t.id}">${t.name} (${t.school_type})</option>`).join('');
   });
 }
 

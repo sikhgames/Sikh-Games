@@ -7,17 +7,22 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; background: #f4f4f8; color: #1a1a1a; }
-header { background: #1a1a4e; color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-header h1 { font-size: 18px; font-weight: 600; }
-header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
-.khanda { font-size: 28px; }
+header { background: #1a1a4e; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.header-text h1 { font-size: 18px; font-weight: 600; }
+.header-text p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.header-logo { height: 56px; width: auto; object-fit: contain; mix-blend-mode: lighten; filter: brightness(1.1); border-radius: 6px; }
 .tabs { display: flex; background: white; border-bottom: 2px solid #e5e5e5; position: sticky; top: 0; z-index: 10; }
 .tab { padding: 12px 28px; font-size: 14px; cursor: pointer; border: none; background: none; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; font-weight: 500; }
 .tab.active { color: #1a1a4e; border-bottom-color: #c8960c; font-weight: 700; }
 .container { max-width: 720px; margin: 20px auto; padding: 0 16px; }
 
-/* Standings */
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+/* Section headings for Primary / Secondary */
+.section-heading { font-size: 13px; font-weight: 700; color: #1a1a4e; text-transform: uppercase; letter-spacing: 0.6px; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px; }
+.section-heading::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+.section-heading:first-child { margin-top: 0; }
+
+/* Standings table */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 6px; }
 thead tr { background: #1a1a4e; }
 th { color: white; padding: 10px 10px; text-align: center; font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; }
 th.left { text-align: left; }
@@ -42,8 +47,10 @@ tr:hover td { background: #fafafa; }
 .fixture-time-col .time { font-size: 15px; font-weight: 700; }
 .fixture-time-col .date-short { font-size: 10px; opacity: 0.7; margin-top: 2px; }
 .fixture-body { flex: 1; display: flex; align-items: center; padding: 10px 14px; gap: 8px; }
-.fixture-team { font-size: 13px; font-weight: 700; flex: 1; }
-.fixture-team.right { text-align: right; }
+.fixture-team-wrap { flex: 1; }
+.fixture-team-wrap.right { text-align: right; }
+.fixture-team-name { font-size: 13px; font-weight: 700; }
+.fixture-team-type { font-size: 11px; color: #999; margin-top: 1px; }
 .fixture-score { font-size: 18px; font-weight: 800; color: #1a1a4e; min-width: 64px; text-align: center; }
 .fixture-score.upcoming { font-size: 13px; color: #aaa; font-weight: 500; }
 .fixture-badge-col { display: flex; align-items: center; padding: 10px 12px 10px 0; }
@@ -52,7 +59,6 @@ tr:hover td { background: #fafafa; }
 .badge-done { background: #f0f0f0; color: #666; }
 .badge-soon { background: #dbeafe; color: #1d4ed8; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-
 .loading { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
 .admin-link { text-align: center; margin-top: 20px; padding-bottom: 28px; }
 .admin-link a { font-size: 12px; color: #bbb; text-decoration: none; }
@@ -63,11 +69,14 @@ tr:hover td { background: #fafafa; }
 <body>
 
 <header>
-  <div>
-    <h1>Shaheedi Bunga UK - Dodgeball</h1>
+  <div class="header-text">
+    <h1>Shaheedi Bunga UK — Dodgeball</h1>
     <p>Tournament Scoreboard</p>
   </div>
-  <span class="khanda">☬</span>
+  <img class="header-logo"
+    src="https://lh3.googleusercontent.com/sitesv/AA5AbUCPbl_ftM7Dqgybsl0RRojt1MF8ENqkNsIDvI9Gd_KpmVOiQZHDgF99vdGZCkNPTXo8EG-M57iBnXghbJJtUt9yvGpbGC_REmtvODvWyJHTHnpMcCYrYuGuC-mMMrAKo--7JR8CV_a5F2AQs5gQjDB6dBt8ZUqxh7okUq7387JrMfRfCrJRA_o9PnI_WBDuaNo-S0zU7LwYZac1c-jSiUoH4N6gFxdwOzuKBlc=w1280"
+    alt="Shaheedi Bunga logo"
+    onerror="this.style.display='none'">
 </header>
 
 <div class="tabs">
@@ -93,10 +102,7 @@ async function api(path) {
   return r.json();
 }
 
-let currentTab = 'standings';
-
 function showTab(id, el) {
-  currentTab = id;
   document.getElementById('standings').style.display = id === 'standings' ? 'block' : 'none';
   document.getElementById('fixtures').style.display = id === 'fixtures' ? 'block' : 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -106,20 +112,17 @@ function showTab(id, el) {
 async function loadAll() {
   const [teams, matches] = await Promise.all([
     api('teams?select=*&order=name'),
-    api('matches?select=*,home:home_team_id(name),away:away_team_id(name)&order=match_time')
+    api('matches?select=*,home:home_team_id(name,school_type),away:away_team_id(name,school_type)&order=match_time')
   ]);
   renderStandings(teams, matches);
   renderFixtures(matches);
-  const now = new Date();
   document.getElementById('last-updated').textContent =
-    'Last updated: ' + now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    'Last updated: ' + new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
-function renderStandings(teams, matches) {
-  // Build stats — W=3pts, D=1pt, L=0pts, auto-calculated from scores
+function buildStatsTable(teamsList, matches) {
   const stats = {};
-  teams.forEach(t => stats[t.id] = { name: t.name, type: t.school_type, p:0, w:0, d:0, l:0, pts:0, gf:0, ga:0 });
-
+  teamsList.forEach(t => stats[t.id] = { name: t.name, type: t.school_type, p:0, w:0, d:0, l:0, pts:0, gf:0, ga:0 });
   matches.forEach(m => {
     if (m.status !== 'completed') return;
     const h = stats[m.home_team_id];
@@ -128,46 +131,38 @@ function renderStandings(teams, matches) {
     h.p++; a.p++;
     h.gf += m.home_score; h.ga += m.away_score;
     a.gf += m.away_score; a.ga += m.home_score;
-    if (m.home_score > m.away_score) {
-      h.w++; h.pts += 3; a.l++;
-    } else if (m.home_score < m.away_score) {
-      a.w++; a.pts += 3; h.l++;
-    } else {
-      h.d++; h.pts += 1; a.d++; a.pts += 1;
-    }
+    if (m.home_score > m.away_score) { h.w++; h.pts += 3; a.l++; }
+    else if (m.home_score < m.away_score) { a.w++; a.pts += 3; h.l++; }
+    else { h.d++; h.pts++; a.d++; a.pts++; }
   });
+  return Object.values(stats).sort((a,b) => b.pts - a.pts || b.w - a.w || (b.gf-b.ga)-(a.gf-a.ga));
+}
 
-  const sorted = Object.values(stats).sort((a, b) =>
-    b.pts - a.pts || b.w - a.w || (b.gf - b.ga) - (a.gf - a.ga)
-  );
-
-  document.getElementById('standings').innerHTML =
-    '<table><thead><tr>' +
+function tableHTML(rows) {
+  if (!rows.length) return '<p style="color:#aaa;font-size:13px;padding:10px 0">No teams yet.</p>';
+  return '<table><thead><tr>' +
     '<th class="left" colspan="2">Team</th>' +
-    '<th title="Played">P</th>' +
-    '<th title="Won">W</th>' +
-    '<th title="Drawn">D</th>' +
-    '<th title="Lost">L</th>' +
-    '<th title="Goals For">GF</th>' +
-    '<th title="Goals Against">GA</th>' +
-    '<th title="Points">Pts</th>' +
+    '<th title="Played">P</th><th title="Won">W</th><th title="Drawn">D</th><th title="Lost">L</th>' +
+    '<th title="Goals For">GF</th><th title="Goals Against">GA</th><th title="Points">Pts</th>' +
     '</tr></thead><tbody>' +
-    sorted.map((t, i) => `
-      <tr class="${i === 0 && t.p > 0 ? 'top-row' : ''}">
-        <td class="rank">${i + 1}</td>
-        <td class="left">
-          <div class="team-name">${t.name}</div>
-          <div class="team-type">${t.type || ''}</div>
-        </td>
-        <td>${t.p}</td>
-        <td class="w">${t.w}</td>
-        <td class="d">${t.d}</td>
-        <td class="l">${t.l}</td>
-        <td>${t.gf}</td>
-        <td>${t.ga}</td>
-        <td class="pts">${t.pts}</td>
-      </tr>`).join('') +
+    rows.map((t,i) => `<tr class="${i===0 && t.p>0 ? 'top-row' : ''}">
+      <td class="rank">${i+1}</td>
+      <td class="left"><div class="team-name">${t.name}</div><div class="team-type">${t.type||''}</div></td>
+      <td>${t.p}</td><td class="w">${t.w}</td><td class="d">${t.d}</td><td class="l">${t.l}</td>
+      <td>${t.gf}</td><td>${t.ga}</td><td class="pts">${t.pts}</td>
+    </tr>`).join('') +
     '</tbody></table>';
+}
+
+function renderStandings(teams, matches) {
+  const primary = teams.filter(t => t.school_type === 'Primary');
+  const secondary = teams.filter(t => t.school_type === 'Secondary');
+  const html =
+    '<div class="section-heading">Primary Schools</div>' +
+    tableHTML(buildStatsTable(primary, matches)) +
+    '<div class="section-heading">Secondary Schools</div>' +
+    tableHTML(buildStatsTable(secondary, matches));
+  document.getElementById('standings').innerHTML = html;
 }
 
 function renderFixtures(matches) {
@@ -175,58 +170,44 @@ function renderFixtures(matches) {
     document.getElementById('fixtures').innerHTML = '<div class="loading">No fixtures yet.</div>';
     return;
   }
-
-  let html = '';
-  let lastDate = '';
-
+  let html = ''; let lastDate = '';
   matches.forEach(m => {
     const dt = m.match_time ? new Date(m.match_time) : null;
-    const dateKey = dt
-      ? dt.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
-      : 'Date TBC';
-    const timeStr = dt
-      ? dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
-      : 'TBC';
-    const dateShort = dt
-      ? dt.toLocaleDateString('en-GB', { day:'numeric', month:'short' })
-      : '';
-
-    if (dateKey !== lastDate) {
-      html += `<div class="fixture-group-label">${dateKey}</div>`;
-      lastDate = dateKey;
-    }
-
-    const badge = m.status === 'live'
+    const dateKey = dt ? dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : 'Date TBC';
+    const timeStr = dt ? dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : 'TBC';
+    const dateShort = dt ? dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+    if (dateKey !== lastDate) { html += `<div class="fixture-group-label">${dateKey}</div>`; lastDate = dateKey; }
+    const badge = m.status==='live'
       ? '<span class="badge badge-live">● Live</span>'
-      : m.status === 'completed'
+      : m.status==='completed'
         ? '<span class="badge badge-done">Full time</span>'
         : '<span class="badge badge-soon">Upcoming</span>';
-
-    const scoreOrVs = m.status === 'upcoming'
+    const scoreOrVs = m.status==='upcoming'
       ? '<span class="fixture-score upcoming">vs</span>'
       : `<span class="fixture-score">${m.home_score} – ${m.away_score}</span>`;
-
     html += `
-      <div class="fixture-card">
-        <div class="fixture-inner">
-          <div class="fixture-time-col">
-            <span class="time">${timeStr}</span>
-            <span class="date-short">${dateShort}</span>
-          </div>
-          <div class="fixture-body">
-            <span class="fixture-team">${m.home?.name || 'TBC'}</span>
-            ${scoreOrVs}
-            <span class="fixture-team right">${m.away?.name || 'TBC'}</span>
-          </div>
-          <div class="fixture-badge-col">${badge}</div>
+      <div class="fixture-card"><div class="fixture-inner">
+        <div class="fixture-time-col">
+          <span class="time">${timeStr}</span>
+          <span class="date-short">${dateShort}</span>
         </div>
-      </div>`;
+        <div class="fixture-body">
+          <div class="fixture-team-wrap">
+            <div class="fixture-team-name">${m.home?.name||'TBC'}</div>
+            <div class="fixture-team-type">${m.home?.school_type||''}</div>
+          </div>
+          ${scoreOrVs}
+          <div class="fixture-team-wrap right">
+            <div class="fixture-team-name">${m.away?.name||'TBC'}</div>
+            <div class="fixture-team-type">${m.away?.school_type||''}</div>
+          </div>
+        </div>
+        <div class="fixture-badge-col">${badge}</div>
+      </div></div>`;
   });
-
   document.getElementById('fixtures').innerHTML = html;
 }
 
-// Initial load then auto-refresh every 30 seconds
 loadAll();
 setInterval(loadAll, 30000);
 </script>
